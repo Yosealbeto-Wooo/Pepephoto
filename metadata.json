@@ -1,0 +1,5 @@
+{
+  "name": "Gemini Photo Enhancer",
+  "description": "An AI-powered photo editing application that allows you to upload images and apply various enhancements like quality improvement, color correction, and artistic filters using the Gemini API. Features include a before/after slider, edit history, and image download.",
+  "requestFramePermissions": []
+}
