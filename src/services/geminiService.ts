@@ -2,13 +2,23 @@
 import { GoogleGenAI, Modality } from "@google/genai";
 import type { GenerateContentResponse } from "@google/genai";
 
+const getApiKey = (): string => {
+  const apiKey = import.meta.env.VITE_API_KEY;
+  if (!apiKey || apiKey.trim() === '') {
+    // Este es el nuevo mensaje de error claro.
+    throw new Error("La clave de API no está configurada. Revisa la variable de entorno VITE_API_KEY en tu configuración de Netlify y asegúrate de que tenga un valor válido.");
+  }
+  return apiKey;
+};
+
+
 export const editImage = async (
   base64ImageDataUrl: string,
   mimeType: string,
   prompt: string
 ): Promise<string> => {
-  // FIX: Use import.meta.env.VITE_API_KEY directly as per Vite guidelines.
-  const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
+  const apiKey = getApiKey();
+  const ai = new GoogleGenAI({ apiKey });
   
   const base64Data = base64ImageDataUrl.split(',')[1];
   
@@ -51,9 +61,9 @@ export const generateVideoFromImage = async (
     mimeType: string,
     prompt: string
 ): Promise<Blob> => {
+    const apiKey = getApiKey();
     // Create a new instance for each call to ensure the latest API key is used
-    // FIX: Use import.meta.env.VITE_API_KEY directly as per Vite guidelines.
-    const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
+    const ai = new GoogleGenAI({ apiKey });
     
     const base64Data = base64ImageDataUrl.split(',')[1];
 
@@ -86,8 +96,7 @@ export const generateVideoFromImage = async (
         throw new Error("Video generation failed or returned no data.");
     }
     
-    // FIX: Use import.meta.env.VITE_API_KEY directly as per Vite guidelines.
-    const response = await fetch(`${downloadLink}&key=${import.meta.env.VITE_API_KEY}`);
+    const response = await fetch(`${downloadLink}&key=${apiKey}`);
     if (!response.ok) {
         throw new Error(`Failed to download video: ${response.statusText}`);
     }
