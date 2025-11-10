@@ -1,9 +1,11 @@
 import React from 'react';
 import { ChevronDownIcon } from './icons';
+import type { IconProps } from './icons';
 
 interface ControlGroupProps {
   title: string;
-  icon: React.ReactElement;
+  // FIX: Specify the props type for the icon ReactElement to allow cloning with className.
+  icon: React.ReactElement<IconProps>;
   isOpen: boolean;
   onToggle: () => void;
   children: React.ReactNode;

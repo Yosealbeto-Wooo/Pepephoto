@@ -1,14 +1,14 @@
-
 // FIX: Defined the AIStudio interface and declared it globally on the window object.
 // This provides a single, consistent type definition across the application, resolving conflicts.
-export interface AIStudio {
-  hasSelectedApiKey: () => Promise<boolean>;
-  openSelectKey: () => Promise<void>;
-}
-
 declare global {
+  interface AIStudio {
+    hasSelectedApiKey: () => Promise<boolean>;
+    openSelectKey: () => Promise<void>;
+  }
+
   interface Window {
-    aistudio: AIStudio;
+    // FIX: Made 'aistudio' optional to resolve a declaration conflict and align with its usage.
+    aistudio?: AIStudio;
   }
 }
 

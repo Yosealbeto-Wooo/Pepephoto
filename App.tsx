@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Header } from './components/Header';
 import { FileUpload } from './components/FileUpload';
 import { EditorControls } from './components/EditorControls';
@@ -7,13 +7,24 @@ import { ImageComparator } from './components/ImageComparator';
 import { HistoryPanel } from './components/HistoryPanel';
 import { ActionButtons } from './components/ActionButtons';
 import { fileToBase64 } from './utils';
-import { editImage } from './services/geminiService';
+import { editImage, generateVideoFromImage } from './services/geminiService';
 import type { HistoryItem, ImageData } from './types';
 import { LoaderIcon } from './components/icons';
 import { useLanguage } from './contexts/LanguageContext';
 import { LanguageSelector } from './components/LanguageSelector';
+import { ModeSwitcher } from './components/ModeSwitcher';
+import { VideoGeneratorControls } from './components/VideoGeneratorControls';
+import { VideoPlayer } from './components/VideoPlayer';
 
 // FIX: Removed the global declaration for window.aistudio to avoid conflicts. It is now defined centrally in types.ts.
+
+const videoLoadingTips = [
+    'Try simple prompts like "gentle zoom in" or "subtle parallax effect".',
+    'Describe movements like "clouds drifting slowly" or "leaves rustling in the wind".',
+    'Video generation is a complex task; thanks for your patience!',
+    'Higher resolution images can sometimes lead to more detailed animations.',
+    'Experiment with different prompts on the same image for varied results.'
+];
 
 export default function App() {
   const { locale, t } = useLanguage();
@@ -24,6 +35,10 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [hasApiKey, setHasApiKey] = useState(false);
   const [isCheckingApiKey, setIsCheckingApiKey] = useState(true);
+  const [mode, setMode] = useState<'photo' | 'video'>('photo');
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [loadingMessage, setLoadingMessage] = useState<string>('');
+  const tipIntervalRef = useRef<number | null>(null);
 
   useEffect(() => {
     const checkApiKey = async () => {
@@ -55,6 +70,8 @@ export default function App() {
   const handleImageUpload = async (file: File) => {
     setIsLoading(true);
     setError(null);
+    setMode('photo');
+    setVideoUrl(null);
     try {
       const imageData = await fileToBase64(file);
       setOriginalImage(imageData);
@@ -98,10 +115,8 @@ export default function App() {
       setCurrentHistoryIndex(newHistory.length - 1);
 
     } catch (err: any) {
-      // Handle potential API key errors from the SDK
       if (err.message.includes("API key not valid") || err.message.includes("Requested entity was not found")) {
         setError(t('error.apiKey.description'));
-        // In AI Studio, we can re-trigger the key selection
         if (window.aistudio) {
             setHasApiKey(false);
         }
@@ -113,6 +128,43 @@ export default function App() {
       setIsLoading(false);
     }
   }, [history, currentHistoryIndex, t]);
+
+  const handleGenerateVideo = useCallback(async (prompt: string) => {
+    if (!originalImage) return;
+
+    setIsLoading(true);
+    setError(null);
+    setVideoUrl(null);
+
+    // Start cycling through tips
+    setLoadingMessage(t('loader.generating_video.tip', { tip: videoLoadingTips[0] }));
+    tipIntervalRef.current = window.setInterval(() => {
+        const randomIndex = Math.floor(Math.random() * videoLoadingTips.length);
+        setLoadingMessage(t('loader.generating_video.tip', { tip: videoLoadingTips[randomIndex] }));
+    }, 4000);
+
+    try {
+        const videoBlob = await generateVideoFromImage(originalImage.data, originalImage.mimeType, prompt);
+        const url = URL.createObjectURL(videoBlob);
+        setVideoUrl(url);
+    } catch (err: any) {
+        if (err.message.includes("API key not valid") || err.message.includes("Requested entity was not found")) {
+            setError(t('error.apiKey.description'));
+            if (window.aistudio) {
+                setHasApiKey(false);
+            }
+        } else {
+            setError(t('error.edit', { message: err.message }));
+        }
+        console.error(err);
+    } finally {
+        setIsLoading(false);
+        if (tipIntervalRef.current) {
+            clearInterval(tipIntervalRef.current);
+            tipIntervalRef.current = null;
+        }
+    }
+  }, [originalImage, t]);
 
   const handleRevert = (index: number) => {
     setCurrentHistoryIndex(index);
@@ -126,6 +178,7 @@ export default function App() {
         };
         setHistory([initialHistoryItem]);
         setCurrentHistoryIndex(0);
+        setVideoUrl(null);
     }
   };
 
@@ -134,7 +187,17 @@ export default function App() {
     setHistory([]);
     setCurrentHistoryIndex(0);
     setError(null);
+    setMode('photo');
+    setVideoUrl(null);
   };
+
+  const handleModeChange = (newMode: 'photo' | 'video') => {
+    setMode(newMode);
+    if (newMode === 'photo') {
+        // Clearing videoUrl when switching back to photo mode
+        setVideoUrl(null);
+    }
+  }
 
   const currentImage = history[currentHistoryIndex]?.imageData;
 
@@ -185,6 +248,26 @@ export default function App() {
 
   const isBusy = isLoading;
 
+  const renderLoader = () => {
+    if (mode === 'video') {
+        return (
+            <div className="absolute inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-center z-20 rounded-xl text-center p-4 backdrop-blur-sm">
+                <LoaderIcon className="w-16 h-16 animate-spin text-blue-500" />
+                <p className="mt-4 text-xl font-semibold">{t('loader.generating_video.title')}</p>
+                <p className="mt-2 text-gray-300">{t('loader.generating_video.p1')}</p>
+                <p className="mt-4 text-sm text-gray-400 max-w-sm">{t('loader.generating_video.p2')}</p>
+                <p className="mt-4 text-sm text-blue-300 font-mono bg-gray-900/50 px-3 py-1.5 rounded-md">{loadingMessage}</p>
+            </div>
+        )
+    }
+    return (
+        <div className="absolute inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center z-20 rounded-xl text-center p-4">
+            <LoaderIcon className="w-16 h-16 animate-spin text-blue-500" />
+            <p className="mt-4 text-lg font-semibold">{t('loader.enhancing')}</p>
+        </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-gray-200 flex flex-col">
       <Header />
@@ -193,15 +276,10 @@ export default function App() {
           <FileUpload onImageUpload={handleImageUpload} isLoading={isLoading} />
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-full">
-            {/* Image Panel */}
+            {/* Main Panel */}
             <div className="lg:col-span-9 flex flex-col h-full">
-              <div className="relative flex-grow bg-gray-800 rounded-xl shadow-lg p-4 flex justify-center min-h-[50vh] lg:min-h-0">
-                {isBusy && (
-                  <div className="absolute inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center z-20 rounded-xl text-center p-4">
-                    <LoaderIcon className="w-16 h-16 animate-spin text-blue-500" />
-                    <p className="mt-4 text-lg font-semibold">{t('loader.enhancing')}</p>
-                  </div>
-                )}
+              <div className="relative flex-grow bg-gray-800 rounded-xl shadow-lg p-4 flex items-center justify-center min-h-[50vh] lg:min-h-0">
+                {isBusy && renderLoader()}
                 {error && (
                   <div className="absolute top-4 left-4 right-4 bg-red-500 text-white p-3 rounded-lg z-30 text-center">
                     {error}
@@ -209,28 +287,44 @@ export default function App() {
                 )}
 
                 {originalImage && currentImage && (
-                  <ImageComparator
-                    original={originalImage.data}
-                    edited={currentImage.data}
-                  />
+                    <>
+                        {mode === 'video' ? (
+                            videoUrl ? <VideoPlayer src={videoUrl} /> : <img src={originalImage.data} alt="Original for video" className="max-w-full max-h-full object-contain rounded-lg" />
+                        ) : (
+                            <ImageComparator
+                                original={originalImage.data}
+                                edited={currentImage.data}
+                            />
+                        )}
+                    </>
                 )}
               </div>
-              <ActionButtons
-                currentImage={currentImage}
-                onReset={handleReset}
-                onNewImage={handleNewImage}
-                isDisabled={isBusy || history.length <= 1}
-              />
+              { mode === 'photo' ? (
+                <ActionButtons
+                    currentImage={currentImage}
+                    onReset={handleReset}
+                    onNewImage={handleNewImage}
+                    isDisabled={isBusy || history.length <= 1}
+                />
+              ) : null}
             </div>
 
             {/* Controls Panel */}
             <div className="lg:col-span-3 bg-gray-800 rounded-xl shadow-lg p-6 flex flex-col space-y-6 h-full">
-              <EditorControls onEdit={handleEdit} isDisabled={isBusy} />
-              <HistoryPanel 
-                history={history} 
-                currentIndex={currentHistoryIndex} 
-                onRevert={handleRevert} 
-              />
+                <ModeSwitcher mode={mode} onModeChange={handleModeChange} isDisabled={isBusy} />
+
+                {mode === 'photo' ? (
+                    <>
+                        <EditorControls onEdit={handleEdit} isDisabled={isBusy} />
+                        <HistoryPanel 
+                            history={history} 
+                            currentIndex={currentHistoryIndex} 
+                            onRevert={handleRevert} 
+                        />
+                    </>
+                ) : (
+                    <VideoGeneratorControls onGenerate={handleGenerateVideo} isDisabled={isBusy} />
+                )}
             </div>
           </div>
         )}

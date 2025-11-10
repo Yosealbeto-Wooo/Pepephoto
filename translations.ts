@@ -82,10 +82,20 @@ type TranslationKeys = {
   'video_generator.api_key.button': string;
   'error.apiKey.title': string;
   'error.apiKey.description': string;
+  'app.mode.photo': string;
+  'app.mode.video': string;
+  'video_generator.title': string;
+  'video_generator.prompt_placeholder': string;
+  'video_generator.generate_button': string;
+  'loader.generating_video.title': string;
+  'loader.generating_video.p1': string;
+  'loader.generating_video.p2': string;
+  'loader.generating_video.tip': string;
+  'actions.download_video': string;
 };
 
 const en: TranslationKeys = {
-    'app.title': 'Gemini Photo Enhancer',
+    'app.title': 'Gemini Creative Studio',
     'upload.title': 'Drag & drop your photo here',
     'upload.or': 'or',
     'upload.browse': 'Browse Files',
@@ -153,14 +163,24 @@ const en: TranslationKeys = {
     'video_generator.api_key.billing_link': 'Learn about billing',
     'video_generator.api_key.button': 'Select API Key',
     'error.apiKey.title': 'API Key Configuration Error',
-    'error.apiKey.description': 'The Gemini API key is not available. For this application to work, the `API_KEY` environment variable must be configured and accessible.',
+    'error.apiKey.description': 'The Gemini API key is not available. Please set the `API_KEY` environment variable in your hosting platform\\\'s settings and redeploy the application.',
+    'app.mode.photo': 'Photo Editor',
+    'app.mode.video': 'Animate Image',
+    'video_generator.title': 'Animate Image',
+    'video_generator.prompt_placeholder': 'Describe the animation (e.g., "a gentle breeze blows through the trees", "steam rises from the coffee cup")',
+    'video_generator.generate_button': 'Animate',
+    'loader.generating_video.title': 'Animating your image...',
+    'loader.generating_video.p1': 'This can take a few minutes.',
+    'loader.generating_video.p2': 'AI is working its magic to animate your image. Feel free to keep this tab open in the background.',
+    'loader.generating_video.tip': 'Tip: {tip}',
+    'actions.download_video': 'Download Video',
 };
 
 export const translations: { [key: string]: TranslationKeys } = {
   en,
   es: {
     ...en,
-    'app.title': 'Mejorador de Fotos Gemini',
+    'app.title': 'Estudio Creativo Gemini',
     'upload.title': 'Arrastra y suelta tu foto aquí',
     'upload.or': 'o',
     'upload.browse': 'Buscar Archivos',
@@ -228,11 +248,21 @@ export const translations: { [key: string]: TranslationKeys } = {
     'video_generator.api_key.billing_link': 'Más información sobre la facturación',
     'video_generator.api_key.button': 'Seleccionar clave de API',
     'error.apiKey.title': 'Error de Configuración de Clave de API',
-    'error.apiKey.description': 'La clave de API de Gemini no está disponible. Para que esta aplicación funcione, la variable de entorno `API_KEY` debe estar configurada y accesible.',
+    'error.apiKey.description': 'La clave de API de Gemini no está disponible. Por favor, establece la variable de entorno `API_KEY` en la configuración de tu plataforma de hosting y vuelve a desplegar la aplicación.',
+    'app.mode.photo': 'Editor de Fotos',
+    'app.mode.video': 'Animar Imagen',
+    'video_generator.title': 'Animar Imagen',
+    'video_generator.prompt_placeholder': 'Describe la animación (ej. "una suave brisa sopla entre los árboles", "el vapor sube de la taza de café")',
+    'video_generator.generate_button': 'Animar',
+    'loader.generating_video.title': 'Animando tu imagen...',
+    'loader.generating_video.p1': 'Esto puede tardar unos minutos.',
+    'loader.generating_video.p2': 'La IA está haciendo su magia para animar tu imagen. Siéntete libre de mantener esta pestaña abierta en segundo plano.',
+    'loader.generating_video.tip': 'Consejo: {tip}',
+    'actions.download_video': 'Descargar Video',
   },
   zh: {
     ...en,
-    'app.title': 'Gemini 照片增强器',
+    'app.title': 'Gemini 创意工作室',
     'upload.title': '将您的照片拖放到此处',
     'upload.or': '或',
     'upload.browse': '浏览文件',
@@ -300,11 +330,21 @@ export const translations: { [key: string]: TranslationKeys } = {
     'video_generator.api_key.billing_link': '了解计费',
     'video_generator.api_key.button': '选择API密钥',
     'error.apiKey.title': 'API密钥配置错误',
-    'error.apiKey.description': 'Gemini API密钥不可用。为了使此应用程序正常工作，必须配置并访问`API_KEY`环境变量。',
+    'error.apiKey.description': 'Gemini API 密钥不可用。请在您的托管平台设置中设置 `API_KEY` 环境变量并重新部署应用程序。',
+    'app.mode.photo': '照片编辑器',
+    'app.mode.video': '动画图像',
+    'video_generator.title': '动画图像',
+    'video_generator.prompt_placeholder': '描述动画（例如，“微风吹过树林”，“咖啡杯冒着热气”）',
+    'video_generator.generate_button': '生成动画',
+    'loader.generating_video.title': '正在为您的图像制作动画...',
+    'loader.generating_video.p1': '这可能需要几分钟时间。',
+    'loader.generating_video.p2': 'AI 正在施展魔法，为您的图像制作动画。您可以随时在后台打开此选项卡。',
+    'loader.generating_video.tip': '提示：{tip}',
+    'actions.download_video': '下载视频',
   },
   fr: {
     ...en,
-    'app.title': 'Améliorateur de Photos Gemini',
+    'app.title': 'Studio Créatif Gemini',
     'upload.title': 'Glissez-déposez votre photo ici',
     'upload.or': 'ou',
     'upload.browse': 'Parcourir les fichiers',
@@ -372,48 +412,64 @@ export const translations: { [key: string]: TranslationKeys } = {
     'video_generator.api_key.billing_link': 'En savoir plus sur la facturation',
     'video_generator.api_key.button': 'Sélectionner la clé API',
     'error.apiKey.title': "Erreur de configuration de la clé API",
-    'error.apiKey.description': "La clé API Gemini n'est pas disponible. Pour que cette application fonctionne, la variable d'environnement `API_KEY` doit être configurée et accessible.",
+    'error.apiKey.description': "La clé API Gemini n'est pas disponible. Veuillez définir la variable d'environnement `API_KEY` dans les paramètres de votre plateforme d'hébergement et redéployer l'application.",
+    'app.mode.photo': 'Éditeur de Photos',
+    'app.mode.video': 'Animer l\'Image',
+    'video_generator.title': 'Animer l\'Image',
+    'video_generator.prompt_placeholder': 'Décrivez l\'animation (par ex. "une légère brise souffle dans les arbres", "de la vapeur s\'échappe de la tasse de café")',
+    'video_generator.generate_button': 'Animer',
+    'loader.generating_video.title': 'Animation de votre image en cours...',
+    'loader.generating_video.p1': 'Cela peut prendre quelques minutes.',
+    'loader.generating_video.p2': 'L\'IA utilise sa magie pour animer votre image. N\'hésitez pas à garder cet onglet ouvert en arrière-plan.',
+    'loader.generating_video.tip': 'Astuce : {tip}',
+    'actions.download_video': 'Télécharger la Vidéo',
   },
   hi: { 
     ...en, 
-    'app.title': 'जेमिनी फोटो एन्हांसर', 
+    'app.title': 'जेमिनी क्रिएटिव स्टूडियो', 
     'lang.select': 'अपनी भाषा का चयन करें',
     'video_generator.api_key.title': 'अपनी एपीआई कुंजी चुनें',
     'error.apiKey.title': 'एपीआई कुंजी कॉन्फ़िगरेशन त्रुटि',
+    'error.apiKey.description': 'जेमिनी एपीआई कुंजी उपलब्ध नहीं है। कृपया अपनी होस्टिंग प्लेटफ़ॉर्म की सेटिंग्स में `API_KEY` पर्यावरण चर सेट करें और एप्लिकेशन को फिर से तैनात करें।',
   },
   ar: { 
     ...en, 
-    'app.title': 'محسن الصور Gemini', 
+    'app.title': 'استوديو Gemini الإبداعي', 
     'lang.select': 'اختر لغتك',
     'video_generator.api_key.title': 'حدد مفتاح API الخاص بك',
     'error.apiKey.title': 'خطأ في تكوين مفتاح API',
+    'error.apiKey.description': 'مفتاح Gemini API غير متوفر. يرجى تعيين متغير البيئة `API_KEY` في إعدادات منصة الاستضافة الخاصة بك وإعادة نشر التطبيق.',
   },
   de: { 
     ...en, 
-    'app.title': 'Gemini Foto-Verbesserer', 
+    'app.title': 'Gemini Kreativstudio', 
     'lang.select': 'Wähle deine Sprache',
     'video_generator.api_key.title': 'Wählen Sie Ihren API-Schlüssel',
     'error.apiKey.title': 'API-Schlüssel-Konfigurationsfehler',
+    'error.apiKey.description': 'Der Gemini-API-Schlüssel ist nicht verfügbar. Bitte setzen Sie die Umgebungsvariable `API_KEY` in den Einstellungen Ihrer Hosting-Plattform und stellen Sie die Anwendung erneut bereit.',
   },
   ru: { 
     ...en, 
-    'app.title': 'Улучшитель фотографий Gemini', 
+    'app.title': 'Творческая студия Gemini', 
     'lang.select': 'Выберите ваш язык',
     'video_generator.api_key.title': 'Выберите свой API-ключ',
     'error.apiKey.title': 'Ошибка конфигурации ключа API',
+    'error.apiKey.description': 'Ключ API Gemini недоступен. Установите переменную среды `API_KEY` в настройках вашей хостинговой платформы и повторно разверните приложение.',
   },
   pt: { 
     ...en, 
-    'app.title': 'Otimizador de Fotos Gemini', 
+    'app.title': 'Estúdio Criativo Gemini', 
     'lang.select': 'Selecione seu idioma',
     'video_generator.api_key.title': 'Selecione sua chave de API',
     'error.apiKey.title': 'Erro de configuração da chave de API',
+    'error.apiKey.description': 'A chave da API Gemini não está disponível. Defina a variável de ambiente `API_KEY` nas configurações da sua plataforma de hospedagem и implante novamente o aplicativo.',
   },
   ja: { 
     ...en, 
-    'app.title': 'Gemini 写真エンハンサー', 
+    'app.title': 'Gemini クリエイティブスタジオ', 
     'lang.select': '言語を選択してください',
     'video_generator.api_key.title': 'APIキーを選択してください',
     'error.apiKey.title': 'APIキー設定エラー',
+    'error.apiKey.description': 'Gemini APIキーが利用できません。ホスティングプラットフォームの設定で環境変数 `API_KEY` を設定し、アプリケーションを再デプロイしてください。',
   },
 };
